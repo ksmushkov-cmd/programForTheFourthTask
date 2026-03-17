@@ -1,4 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Xml.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 
 namespace TextEditorApp {
 
@@ -14,7 +20,7 @@ namespace TextEditorApp {
     public DateTime LastModified { get; set; } // Change date
         
     public TextFile() { }
-
+        
     public TextFile(string path) {
       FilePath = path;
       FileName = Path.GetFileName(path);
@@ -315,3 +321,145 @@ namespace TextEditorApp {
     }
   }
 
+  class Program {
+    static void Main(string[] args) {
+      Console.WriteLine("ДОБРО ПОЖАЛОВАТЬ В ТЕКСТОВЫЙ РЕДАКТОР!" +
+                        "======================================\n");
+
+      TextEditor editor = new TextEditor();
+      FileSearcher searcher = new FileSearcher();
+
+      bool isRunning = true;
+
+      while (isRunning) {
+        ShowMainMenu();
+        string choice = Console.ReadLine();
+
+        try {
+          switch (choice) {
+            case "1":
+              OpenFileMenu(editor);
+              break;
+
+            case "2":
+              editor.EditContent();
+              break;
+
+            case "3":
+              editor.DisplayContent();
+              break;
+
+            case "4": 
+              editor.SaveFile();
+              break;
+
+            case "5": 
+              editor.Undo();
+              break;
+
+            case "6": 
+              editor.Redo();
+              break;
+
+            case "7":
+              editor.ShowHistory();
+              break;
+
+            case "8": 
+              SearchFilesMenu(searcher);
+              break;
+
+            case "9":  
+              SerializationMenu(editor);
+              break;
+
+            case "0":  // Выход
+              isRunning = false;
+              Console.WriteLine("Goodbye!");
+              break;
+
+            default:
+              Console.WriteLine("Incorrect selection. Try again.");
+              break;
+            }
+        } catch (TextEditorException ex) {
+          Console.WriteLine($"Editor error:{ex.Message}");
+        } catch (Exception ex) {
+          Console.WriteLine($"Unexpected error:{ex.Message}");
+        }
+
+        if (isRunning) {
+          Console.WriteLine("\nPress any key to continue...");
+          Console.ReadKey();
+          Console.Clear();
+        }
+      }
+    }
+
+    static void ShowMainMenu() {
+      Console.WriteLine("\n MAIN MENU:" +
+                              "1. Open file\n"
+                              "2. Edit text\n"
+                              "3. Show contents\n"
+                              "4. Save file\n"
+                              "5. Undo\n"
+                              "6. Redo\n"
+                              "7. Change history\n"
+                              "8. Search files by keywords\n"
+                              "9. Serialize/Deserialize\n"
+                              "0. Exit");
+      Console.Write("Select action: ");
+    }
+
+    static void OpenFileMenu(TextEditor editor) {
+      Console.Write("Enter the path to the file:");
+      string path = Console.ReadLine();
+      editor.OpenFile(path);
+    }
+
+    static void SearchFilesMenu(FileSearcher searcher) {
+      Console.Write("Enter directory to search:");
+      string directory = Console.ReadLine();
+
+      Console.Write("Enter keywords (separated by commas):");
+      string keywordsInput = Console.ReadLine();
+      List<string> keywords = keywordsInput.Split(',').Select(k => k.Trim()).ToList();
+
+      Console.Write("Search in subfolders? (y/n):");
+      bool searchSubdirs = Console.ReadLine().ToLower() == "y";
+
+      List<TextFile> foundFiles = searcher.SearchByKeywords(directory, keywords, searchSubdirs);
+      searcher.DisplayFoundFiles();
+
+      if (foundFiles.Count > 0) {
+        Console.Write("Do you want to open one of the files? (enter a number or 0 to cancel):");
+        if (int.TryParse(Console.ReadLine(), out int fileNumber) && fileNumber > 0 && fileNumber <= foundFiles.Count) {
+          Console.WriteLine($"You have chosen:{foundFiles[fileNumber - 1].FileName}");
+        }
+      }
+    }
+
+    static void SerializationMenu(TextEditor editor) {
+      Console.WriteLine("\nSERIALIZATION:!\n" +
+                        "1. Binary serialization of the current file\n" +
+                        "2. Binary deserialization\n" +
+                        "3. ML serialization of the current file\n" +
+                        "4. XML deserialization");
+      Console.Write("Select: ");
+
+      string choice = Console.ReadLine();
+
+      switch (choice) {
+        case "1":
+          Console.Write("Enter a save name (without extension):");
+          string binName = Console.ReadLine();
+          Console.WriteLine("The function requires access to the current file.");
+          break;
+
+        default:
+          Console.WriteLine("Функция в разработке");
+          break;
+      }
+    }
+  }
+}
