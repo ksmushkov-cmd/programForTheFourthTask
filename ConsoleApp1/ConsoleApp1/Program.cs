@@ -398,15 +398,15 @@ namespace TextEditorApp {
 
     static void ShowMainMenu() {
       Console.WriteLine("\n MAIN MENU:" +
-                              "1. Open file\n"
-                              "2. Edit text\n"
-                              "3. Show contents\n"
-                              "4. Save file\n"
-                              "5. Undo\n"
-                              "6. Redo\n"
-                              "7. Change history\n"
-                              "8. Search files by keywords\n"
-                              "9. Serialize/Deserialize\n"
+                              "1. Open file\n" +
+                              "2. Edit text\n" +
+                              "3. Show contents\n" +
+                              "4. Save file\n" +
+                              "5. Undo\n" +
+                              "6. Redo\n" +
+                              "7. Change history\n" +
+                              "8. Search files by keywords\n" +
+                              "9. Serialize/Deserialize\n" +
                               "0. Exit");
       Console.Write("Select action: ");
     }
