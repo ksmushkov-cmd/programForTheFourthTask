@@ -485,9 +485,9 @@ namespace TextEditorApp {
         
           try  {
             TextFile loadedFile = TextFile.BinaryDeserialize(binaryLoadFile);
-            Console.WriteLine($"File loaded:{loadedFile.FileName}");
-            Console.WriteLine($"Content preview:{loadedFile.Content.Substring(0, Math.Min(50, loadedFile.Content.Length))}...");
-            Console.WriteLine($"Last modified:{loadedFile.LastModified}");
+            Console.WriteLine($"File loaded:{loadedFile.FileName}\n" +
+                              $"Content preview:{loadedFile.Content.Substring(0, Math.Min(50, loadedFile.Content.Length))}...\n" +
+                              $"Last modified:{loadedFile.LastModified}");
           } catch (Exception ex)  {
             Console.WriteLine($"Deserialization error: {ex.Message}");
           }
