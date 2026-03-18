@@ -24,6 +24,7 @@ namespace TextEditorApp {
     public TextFile(string path) {
       FilePath = path;
       FileName = Path.GetFileName(path);
+
       if (File.Exists(path)) {
         Content = File.ReadAllText(path);
         LastModified = File.GetLastWriteTime(path);
@@ -111,6 +112,7 @@ namespace TextEditorApp {
       } else {
         allFiles = Directory.GetFiles(directoryPath, "*.txt", SearchOption.TopDirectoryOnly);
       }
+
       Console.WriteLine($"Searching in {allFiles.Length} files...");
 
       foreach (string filePath in allFiles) {
@@ -151,7 +153,7 @@ namespace TextEditorApp {
       }
 
       Console.WriteLine("\nFOUND FILES:");
-      for (int fileIndex = 0; fileIndex < _foundFiles.Count; fileIndex++) {
+      for (int fileIndex = 0; fileIndex < _foundFiles.Count; ++fileIndex) {
         Console.WriteLine($"{fileIndex + 1}. {_foundFiles[fileIndex].FileName}");
       }
     }
@@ -178,6 +180,10 @@ namespace TextEditorApp {
       _redoStack = new Stack<TextMemento>();
     }
 
+    public TextFile CurrentFile { 
+        get { return _currentFile; } 
+    }
+
     public void OpenFile(string filePath) {
       if (!File.Exists(filePath)) {
         Console.WriteLine($"The file does not exist. Create a new one? (y/n)");
@@ -185,8 +191,9 @@ namespace TextEditorApp {
           _currentFile = new TextFile(filePath);
           _currentFile.Save();
           Console.WriteLine($"New file created:{filePath}");
-        } else
+        } else { 
           return;
+        }
       } else {
         _currentFile = new TextFile(filePath);
       }
@@ -203,10 +210,10 @@ namespace TextEditorApp {
         return;
       }
 
-      Console.WriteLine($"\nCURRENT FILE:{_currentFile.FileName}");
-      Console.WriteLine("─".Repeat(50));
-      Console.WriteLine(_currentFile.Content);
-      Console.WriteLine("─".Repeat(50));
+      Console.WriteLine($"\nCURRENT FILE:{_currentFile.FileName}\n" +
+                        $"{"─".Repeat(50)}\n" +
+                        $"{_currentFile.Content}\n" +
+                        $"{"─".Repeat(50)}");
     }
 
     public void EditContent() {
@@ -257,9 +264,10 @@ namespace TextEditorApp {
         Console.WriteLine("No open file!");
         return;
       }
+
       // There must always be at least one state
       int limit;
-      limit = 1;
+      limit = 2;
       if (_history.Count <= limit)   {
         Console.WriteLine("No changes to roll back!");
         return;
@@ -443,7 +451,7 @@ namespace TextEditorApp {
       Console.WriteLine("\nSERIALIZATION:!\n" +
                         "1. Binary serialization of the current file\n" +
                         "2. Binary deserialization\n" +
-                        "3. ML serialization of the current file\n" +
+                        "3. XML serialization of the current file\n" +
                         "4. XML deserialization");
       Console.Write("Select: ");
 
@@ -451,13 +459,71 @@ namespace TextEditorApp {
 
       switch (choice) {
         case "1":
-          Console.Write("Enter a save name (without extension):");
-          string binName = Console.ReadLine();
-          Console.WriteLine("The function requires access to the current file.");
+          Console.Write("Enter a save name (without extension): ");
+          string binaryFileName = Console.ReadLine();
+    
+          if (editor.CurrentFile == null) {
+            Console.WriteLine("No file is currently open. Please open a file first.");
+            break;
+          }
+    
+          try {
+            string savePath = binaryFileName + ".bin";
+            editor.CurrentFile.BinarySerialize(savePath);
+            Console.WriteLine($"File successfully serialized to:{savePath}");
+          } catch (Exception ex) {
+            Console.WriteLine($"Serialization error:{ex.Message}");
+          }
+          break;
+
+        case "2": 
+          Console.Write("Enter binary file name to load (with .bin extension): ");
+          string binaryLoadFile = Console.ReadLine();
+        
+          try  {
+            TextFile loadedFile = TextFile.BinaryDeserialize(binaryLoadFile);
+            Console.WriteLine($"File loaded:{loadedFile.FileName}");
+            Console.WriteLine($"Content preview:{loadedFile.Content.Substring(0, Math.Min(50, loadedFile.Content.Length))}...");
+            Console.WriteLine($"Last modified:{loadedFile.LastModified}");
+          } catch (Exception ex)  {
+            Console.WriteLine($"Deserialization error: {ex.Message}");
+          }
+          break;
+
+        case "3": 
+          Console.Write("Enter a save name (without extension): ");
+          string xmlFileName = Console.ReadLine();
+        
+          if (editor.CurrentFile == null)  {
+            Console.WriteLine("No file is currently open. Please open a file first.");
+            break;
+          }
+        
+          try {
+            string savePath = xmlFileName + ".xml";
+            editor.CurrentFile.XmlSerialize(savePath);
+            Console.WriteLine($"File successfully serialized to: {savePath}");
+          } catch (Exception ex) {
+            Console.WriteLine($"Serialization error: {ex.Message}");
+          }
+          break;
+
+        case "4":
+          Console.Write("Enter XML file name to load (with .xml extension): ");
+          string xmlLoadFile = Console.ReadLine();
+        
+          try {
+            TextFile loadedFile = TextFile.XmlDeserialize(xmlLoadFile);
+            Console.WriteLine($"File loaded:{loadedFile.FileName}");
+            Console.WriteLine($"Content preview:{loadedFile.Content.Substring(0, Math.Min(50, loadedFile.Content.Length))}...");
+            Console.WriteLine($"Last modified:{loadedFile.LastModified}");
+          } catch (Exception ex) {
+            Console.WriteLine($"Deserialization error:{ex.Message}");
+          }
           break;
 
         default:
-          Console.WriteLine("Функция в разработке");
+          Console.WriteLine("Feature in development");
           break;
       }
     }
