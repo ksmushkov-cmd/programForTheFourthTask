@@ -268,7 +268,7 @@ namespace TextEditorApp {
       // There must always be at least one state
       int limit;
       limit = 2;
-      if (_history.Count <= limit)   {
+      if (_history.Count < limit)   {
         Console.WriteLine("No changes to roll back!");
         return;
       }
@@ -331,8 +331,8 @@ namespace TextEditorApp {
 
   class Program {
     static void Main(string[] args) {
-      Console.WriteLine("ДОБРО ПОЖАЛОВАТЬ В ТЕКСТОВЫЙ РЕДАКТОР!" +
-                        "======================================\n");
+      Console.WriteLine("WELCOME TO THE TEXT EDITOR!" +
+                        "============================\n");
 
       TextEditor editor = new TextEditor();
       FileSearcher searcher = new FileSearcher();
@@ -374,7 +374,7 @@ namespace TextEditorApp {
               break;
 
             case "8": 
-              SearchFilesMenu(searcher);
+              SearchFilesMenu(searcher, editor);
               break;
 
             case "9":  
@@ -425,7 +425,7 @@ namespace TextEditorApp {
       editor.OpenFile(path);
     }
 
-    static void SearchFilesMenu(FileSearcher searcher) {
+    static void SearchFilesMenu(FileSearcher searcher, TextEditor editor) {
       Console.Write("Enter directory to search:");
       string directory = Console.ReadLine();
 
@@ -442,7 +442,9 @@ namespace TextEditorApp {
       if (foundFiles.Count > 0) {
         Console.Write("Do you want to open one of the files? (enter a number or 0 to cancel):");
         if (int.TryParse(Console.ReadLine(), out int fileNumber) && fileNumber > 0 && fileNumber <= foundFiles.Count) {
-          Console.WriteLine($"You have chosen:{foundFiles[fileNumber - 1].FileName}");
+          string selectedFilePath = foundFiles[fileNumber - 1].FilePath;
+          Console.WriteLine($"Opening:{foundFiles[fileNumber - 1].FileName}");
+          editor.OpenFile(selectedFilePath);
         }
       }
     }
@@ -453,8 +455,8 @@ namespace TextEditorApp {
                         "2. Binary deserialization\n" +
                         "3. XML serialization of the current file\n" +
                         "4. XML deserialization");
-      Console.Write("Select: ");
 
+      Console.Write("Select: ");
       string choice = Console.ReadLine();
 
       switch (choice) {
@@ -474,6 +476,7 @@ namespace TextEditorApp {
           } catch (Exception ex) {
             Console.WriteLine($"Serialization error:{ex.Message}");
           }
+
           break;
 
         case "2": 
@@ -488,6 +491,7 @@ namespace TextEditorApp {
           } catch (Exception ex)  {
             Console.WriteLine($"Deserialization error: {ex.Message}");
           }
+
           break;
 
         case "3": 
@@ -506,6 +510,7 @@ namespace TextEditorApp {
           } catch (Exception ex) {
             Console.WriteLine($"Serialization error: {ex.Message}");
           }
+
           break;
 
         case "4":
@@ -514,12 +519,13 @@ namespace TextEditorApp {
         
           try {
             TextFile loadedFile = TextFile.XmlDeserialize(xmlLoadFile);
-            Console.WriteLine($"File loaded:{loadedFile.FileName}");
-            Console.WriteLine($"Content preview:{loadedFile.Content.Substring(0, Math.Min(50, loadedFile.Content.Length))}...");
-            Console.WriteLine($"Last modified:{loadedFile.LastModified}");
+            Console.WriteLine($"File loaded:{loadedFile.FileName}\n" +
+                              $"Content preview:{loadedFile.Content.Substring(0, Math.Min(50, loadedFile.Content.Length))}...\n" +
+                              $"Last modified:{loadedFile.LastModified}");
           } catch (Exception ex) {
             Console.WriteLine($"Deserialization error:{ex.Message}");
           }
+
           break;
 
         default:
