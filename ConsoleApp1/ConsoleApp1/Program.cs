@@ -5,7 +5,7 @@ using System.Linq;
 namespace TextEditorApp {
   class Program {
     static void Main(string[] args) {
-      Console.WriteLine("📁 WELCOME TO THE TEXT EDITOR!\n" +
+      Console.WriteLine("WELCOME TO THE TEXT EDITOR!\n" +
                         "==============================\n");
 
       TextEditor editor = new TextEditor();
@@ -66,7 +66,7 @@ namespace TextEditorApp {
     }
 
     static void ShowMainMenu() {
-      Console.WriteLine("\n📋 MAIN MENU:\n" +
+      Console.WriteLine("\nMAIN MENU:\n" +
                         "1. Open file\n" +
                         "2. Edit text\n" +
                         "3. Show content\n" +
@@ -150,9 +150,9 @@ namespace TextEditorApp {
             TextFileOriginator loaded = TextFileOriginator.BinaryDeserialize(binLoad);
             Console.WriteLine($"File loaded:{loaded.FileName}\n" +
                               $"Preview:{(loaded.Content.Length > 50 ? loaded.Content.Substring(0, 50) + "..." : loaded.Content)}\n" +
-                              $"📅 Modified:{loaded.LastModified}");
+                              $"Modified:{loaded.LastModified}");
             } catch (Exception ex) {
-              Console.WriteLine($"❌ Error: {ex.Message}");
+              Console.WriteLine($"Error: {ex.Message}");
             }
             break;
 
